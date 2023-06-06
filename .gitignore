@@ -2,6 +2,5 @@ uploads
 frontend/node_modules
 frontend/src
 frontend/public
-venv
 .idea
 .vscode
