@@ -4,3 +4,4 @@ frontend/src
 frontend/public
 .idea
 .vscode
+venv

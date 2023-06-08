@@ -17,7 +17,6 @@ from .models import *
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
 from twilio.rest import Client
-from sms import send_sms
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -112,9 +111,9 @@ def products_search(req, q):
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 4
+    page_size = 10
     page_size_query_param = 'page_size'
-    max_page_size = 4
+    max_page_size = 10
 
 
 class productss(generics.ListAPIView):
@@ -183,6 +182,10 @@ class Posts(APIView):
             category = request.data["category"]
             img = request.data["img"]
             print(img, category, price)
+            ex = img.name.split(".")[-1]
+            f_name = "".join(name.split())
+            img.name = f"{price}{f_name}.{ex}"
+            print(img.name, ex)
             Products.objects.create(
                 category=Category.objects.get(id=int(category)), name=name,
                 price=float(price), description=description, image=img, img_name=img.name
@@ -205,9 +208,7 @@ class order(APIView):
             id = request.data["id"]
             products_ = Cart.objects.filter(user=MyUser.objects.get(
                 id=id))
-            account_sid = 'AC3e5a93a6d8a322bde83be6b367f64a5b'
-            auth_token = 'a0f2b40a7e9e9ff81a2d6e02b9a2c521'
-            client = Client(account_sid, auth_token)
+
             cv = [Products.objects.get(
                 id=h["item"]).name for h in products_.values("item")]
             pp = '\n'.join(cv)
@@ -219,14 +220,16 @@ class order(APIView):
             Products :- {pp},\n
         
             """
-            message = client.messages.create(
-                body=cap,
-                from_='+13613209516',
-                to='+251945320109'
-            )
+            # message = client.messages.create(
+            #     body=cap,
+            #     from_='+13613209516',
+            #     to='+251945320109'
+            # )
 
             # print(88899, name)
+            data = {"txt": cap}
             products_.delete()
+            return JsonResponse(data)
 
         except Cart.DoesNotExist:
             raise Http404
